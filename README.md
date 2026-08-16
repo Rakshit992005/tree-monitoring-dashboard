@@ -170,8 +170,11 @@ GET http://localhost:3001/api/health
 ```
 
 **curl example**
+
+> 💡 Replace `192.168.X.X` with your backend server's local IP address (see [How to find your IP](#how-to-find-your-ip) below).
+
 ```bash
-curl http://localhost:3001/api/health
+curl -v http://192.168.X.X:3001/api/health
 ```
 
 ---
@@ -219,14 +222,30 @@ Used by the **Raspberry Pi** to send a TOF measurement and (optionally) a tree p
 | `401 Unauthorized` | Missing or incorrect `X-Secret-Key` |
 | `500 Internal Server Error` | Database or server error |
 
-**Example — curl**
+**Example — curl (confirmed working)**
+
+> ⚠️ **Important**: Replace `192.168.X.X` with your backend server's **actual local IP address**.
+> Do **not** use `localhost` when calling from another device (e.g. Raspberry Pi) — it won't reach your machine.
+> See [How to find your IP](#how-to-find-your-ip) below.
+
 ```bash
-curl -X POST http://localhost:3001/api/tree/data \
+curl -v -X POST "http://192.168.X.X:3001/api/tree/data" \
   -H "X-Secret-Key: dev-secret-key-change-in-production" \
-  -F "treeId=TREE-001" \
-  -F "tofMeasurement=123.4" \
-  -F "image=@/path/to/photo.jpg"
+  --form "treeId=TREE-IMAGE-TEST" \
+  --form "tofMeasurement=25.5" \
+  --form "image=@/path/to/your/photo.jpg"
 ```
+
+**Real example from a Raspberry Pi (Linux path)**
+```bash
+curl -v -X POST "http://192.168.X.X:3001/api/tree/data" \
+  -H "X-Secret-Key: dev-secret-key-change-in-production" \
+  --form "treeId=TREE-IMAGE-TEST" \
+  --form "tofMeasurement=25.5" \
+  --form "image=@/home/pi/photo.jpg"
+```
+
+> 💡 Use `-v` (verbose) flag to see the full request/response and debug connection issues.
 
 **Example — Python (Raspberry Pi script)**
 ```python
@@ -308,7 +327,7 @@ GET http://localhost:3001/api/tree/data
 
 **curl example**
 ```bash
-curl http://localhost:3001/api/tree/data
+curl http://192.168.X.X:3001/api/tree/data
 ```
 
 **JavaScript (fetch) example**
@@ -350,6 +369,43 @@ http://localhost:3001/uploads/<filename>
 | `401 Unauthorized` from the Pi | Check that `DEVICE_SECRET` matches in both `.env` files |
 | Dashboard shows "Could not connect" | Make sure the backend is running (`npm run dev` in the `backend` folder) |
 | No data appears | Check that the Pi script is running and the `API_URL` points to the right address |
+
+---
+
+## 📍 How to find your IP
+
+When calling the API from another device (like a Raspberry Pi), use your **backend machine's local IP** — not `localhost`.
+
+**On Windows** (run in PowerShell or CMD):
+```powershell
+ipconfig
+# Look for "IPv4 Address" under your active network adapter
+# Example output:  IPv4 Address. . . . . . . . : 192.168.1.42
+```
+
+**On Linux / Raspberry Pi** (run in terminal):
+```bash
+hostname -I
+# Example output:  192.168.1.42
+```
+
+**On macOS** (run in terminal):
+```bash
+ifconfig | grep "inet " | grep -v 127.0.0.1
+# Example output:  inet 192.168.1.42
+```
+
+Once you have the IP, replace `192.168.X.X` in any of the curl examples above. For example:
+```bash
+# If your IP is 192.168.1.42:
+curl -v -X POST "http://192.168.1.42:3001/api/tree/data" \
+  -H "X-Secret-Key: dev-secret-key-change-in-production" \
+  --form "treeId=TREE-IMAGE-TEST" \
+  --form "tofMeasurement=25.5" \
+  --form "image=@/home/pi/photo.jpg"
+```
+
+> ⚠️ Make sure your **firewall** allows inbound connections on port `3001`. On Windows, you may need to add an inbound rule in Windows Defender Firewall.
 
 ---
 
