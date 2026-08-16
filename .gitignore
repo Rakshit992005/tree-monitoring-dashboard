@@ -1,0 +1,18 @@
+# ── Dependencies ──────────────────────────────
+node_modules/
+
+# ── Environment secrets ───────────────────────
+.env
+
+# ── Uploaded images (large binary files) ─────
+backend/uploads/*
+!backend/uploads/.gitkeep
+!backend/uploads/.gitignore
+
+# ── Build output ──────────────────────────────
+dist/
+build/
+
+# ── OS junk ───────────────────────────────────
+.DS_Store
+Thumbs.db
